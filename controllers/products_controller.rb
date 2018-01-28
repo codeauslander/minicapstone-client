@@ -1,49 +1,30 @@
 module ProductsController
   def products_index_action
-    response = Unirest.get("http://localhost:3000/products")
-    products_hashs = response.body
-    products = []
-    products_hashs.each do |product_hash|
-      products << Product.new(product_hash)
-    end
-
+    products_hashs = get_request("/products")
+    products = Product.convert_hashs(products_hashs)
     products_index_view(products)
   end
   def products_search_action
     print "Enter a name to search: "
     search = gets.chomp
-    response = Unirest.get("http://localhost:3000/products?search=#{search}")
-    products = response.body
-    puts JSON.pretty_generate(products)
+    products_hashs = get_request("products?search=#{search}")
+    products = Product.convert_hashs(products_hashs)
+    products_index_view(products)
   end
-  def products_sort_action
-    print "Enter an attribute to sort: "
-    sort = gets.chomp
-    response = Unirest.get("http://localhost:3000/products?sort=#{sort}")
-    products = response.body
-    puts JSON.pretty_generate(products)
+  def products_sort_action(sort)
+    products_hashs = get_request("/products?sort=#{sort}")
+    products = Product.convert_hashs(products_hashs)
+    products_index_view(products)
   end
   def products_show_action
-    print "Enter product id: "
-    input_id = gets.chomp
-    response = Unirest.get("http://localhost:3000/products/#{input_id}")
-    product_hash = response.body
+    input_id = products_id_form
+    product_hash = get_request("/products/#{input_id}")
     product = Product.new(product_hash)
 
     products_show_view(product)
   end
   def products_create_action
-    client_params = {}
-    print "Name: "
-    client_params[:name] = gets.chomp
-    print "Price: "
-    client_params[:price] = gets.chomp
-    print "Image_url: "
-    client_params[:image_url] = gets.chomp
-    print "Description: "
-    client_params[:description] = gets.chomp
-    print "In_stock: "
-    client_params[:in_stock] = gets.chomp
+    client_params = products_new_form
     response = Unirest.post(
         "http://localhost:3000/products",
         parameters:client_params
@@ -54,47 +35,30 @@ module ProductsController
       products_show_view(product)
     else
       errors = response.body["errors"]
-      errors.each do |error|
-        puts error
-      end
+      products_errors_view(errors)
     end
   end
   def products_update_action
-    client_params = {}
-    print "Enter product id: "
-    input_id = gets.chomp
-    response = Unirest.get("http://localhost:3000/products/#{input_id}")
-    product = response.body
-    print "Name: (#{product['name']})"
-    client_params[:name] = gets.chomp
-    print "Price: (#{product['price']})"
-    client_params[:price] = gets.chomp
-    print "Image_url: (#{product['image_url']})"
-    client_params[:image_url] = gets.chomp
-    print "Description (#{product['description']})"
-    client_params[:description] = gets.chomp
-    print "In_stock (#{product['in_stock']})"
-    client_params[:in_stock] = gets.chomp
-    client_params.delete_if{ |key, value| value.empty?}
+    input_id = products_id_form
+    product_hash = get_request("/products/#{input_id}")
+    product = Product.new(product_hash)
+    client_params = products_update_form(product)
     response = Unirest.patch(
         "http://localhost:3000/products/#{input_id}",
         parameters:client_params
       )
     if response.code == 200
-      product = response.body
-      puts JSON.pretty_generate(product)
+      product_hash = response.body
+      product = Product.new(product_hash)
+      products_show_view(product)
     else
       errors = response.body["errors"]
-      errors.each do |error|
-        puts error
-      end
+      products_errors_view(errors)
     end
   end
   def products_destroy_action
-    print "Enter product id: "
-    input_id = gets.chomp
-    response = Unirest.delete("http://localhost:3000/products/#{input_id}")
-    data = response.body
+    input_id = products_id_form
+    data = delete_request("/products/#{input_id}")
     puts data["message"]
   end
 end

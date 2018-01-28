@@ -17,7 +17,8 @@ class Frontend
       Choose an option (REST)
           [1] Show all products
             [1.1] Search by name
-            [1.2] Sort by attribute
+            [1.2] Sort by name
+            [1.3] Sort by price
           [2] Show one product
           [3] Create a new product
           [4] Update a product
@@ -36,7 +37,9 @@ class Frontend
       when "1.1"
         products_search_action
       when "1.2"
-        products_sort_action
+        products_sort_action("name")
+      when "1.3"
+          products_sort_action("price")
       when "2"
         products_show_action
       when "3"
@@ -56,5 +59,24 @@ class Frontend
         running = false
       end
     end
+  end
+  private
+  def get_request(url,parameters={})
+    Unirest.get("http://localhost:3000#{url}").body
+  end
+  def post_request(url,parameters={})
+    response = Unirest.post("http://localhost:3000#{url}"
+      ,parameters:parameters)
+    if response.code == 200
+      return response.body
+    end
+    return nil
+  end
+  def patch_request(url,parameters={})
+    response = Unirest.patch("http://localhost:3000#{url}"
+      ,parameters:parameters).body
+  end
+  def delete_request(url,parameters={})
+    response = Unirest.delete("http://localhost:3000#{url}").body
   end
 end
