@@ -1,4 +1,4 @@
 require_relative 'frontend'
-Frontend.new.run
 
+Frontend.new.run
 

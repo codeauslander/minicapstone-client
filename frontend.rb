@@ -62,21 +62,15 @@ class Frontend
   end
   private
   def get_request(url,parameters={})
-    Unirest.get("http://localhost:3000#{url}").body
+    Unirest.get("http://localhost:3000#{url}",parameters: parameters).body
   end
   def post_request(url,parameters={})
-    response = Unirest.post("http://localhost:3000#{url}"
-      ,parameters:parameters)
-    if response.code == 200
-      return response.body
-    end
-    return nil
+    Unirest.post("http://localhost:3000#{url}",parameters:parameters).body
   end
   def patch_request(url,parameters={})
-    response = Unirest.patch("http://localhost:3000#{url}"
-      ,parameters:parameters).body
+    Unirest.patch("http://localhost:3000#{url}",parameters:parameters).body
   end
   def delete_request(url,parameters={})
-    response = Unirest.delete("http://localhost:3000#{url}").body
+    Unirest.delete("http://localhost:3000#{url}",parameters: parameters).body
   end
 end
