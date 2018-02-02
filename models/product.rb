@@ -1,9 +1,9 @@
 class Product
-  attr_accessor :id, :name, :image_url, :description, :is_discounted, :tax, :total, :price, :formatted_price, :in_stock, :supplier_id, :supplier_name, :images_urls
+  attr_accessor :id, :name, :image_url, :description, :is_discounted, :tax, :total, :price, :formatted_price, :formatted_tax, :formatted_total, :in_stock, :supplier_id, :supplier_name, :images_urls
   def initialize(input)
     @id = input["id"]
     @name = input["name"]
-    
+    @image_url = input['image_url']
     @description = input["description"]
     @is_discounted = input["is_discounted"]
 
@@ -28,5 +28,8 @@ class Product
       collection << Product.new(product_hash)
     end
     collection
+  end
+  def description_lines
+    description.scan(/.{0,40}/)
   end
 end

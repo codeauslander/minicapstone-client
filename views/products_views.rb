@@ -4,14 +4,16 @@ module ProductsViews
     puts 
     puts "#{product.name} - Id: #{product.id}"
     puts 
-    puts product.description
+    product.description_lines.each do |description_line|
+      puts description_line
+    end
     puts
-    puts product.price
-    puts product.tax
+    puts product.formatted_price
+    puts product.formatted_tax
     puts "-------------------"
-    puts product.total
-    puts product.in_stock
-    puts "images_urls"
+    puts product.formatted_total
+    puts "In stock: #{product.in_stock}"
+    puts "images urls"
     product.images_urls.each do |image_url|
       puts "*#{image_url}"
     end
@@ -36,12 +38,14 @@ module ProductsViews
     parameters[:name] = gets.chomp
     print "Price: "
     parameters[:price] = gets.chomp
-    print "Image_url: "
+    print "Image url: "
     parameters[:image_url] = gets.chomp
     print "Description: "
     parameters[:description] = gets.chomp
-    print "In_stock: "
+    print "In stock: "
     parameters[:in_stock] = gets.chomp
+    print "Supplier Id: "
+    parameters[:supplier_id] = gets.chomp
     parameters
   end
   def products_update_form(product)
@@ -65,5 +69,9 @@ module ProductsViews
     errors.each do |error|
       puts error
     end
+  end
+  def products_search_form
+    print "Enter a name to search by: "
+    gets.chomp
   end
 end
