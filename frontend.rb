@@ -18,9 +18,11 @@ class Frontend
   def run
     system 'clear'
     running = true
+    user_email = "Welcome visitor"
     while running == true
       system 'clear'
-      puts "Query URL
+      puts "#{user_email}      
+      Choose an option (Query URL)
         [a] Show products
         [s] Show a product
         [d] Print
@@ -39,10 +41,12 @@ class Frontend
           [signup] Sing up (Create user)
           [login]  Login (Create a User token)
           [logout] Logout (Destroy jwt)
-          [6] Create a User (Sign up)
+          [cart] Show carted products
 
+          [6] Create a User (Sign up)
           [7] Show all orders
           [8] Add a product to your cart
+          [9] Show all carted products
           [ ] Everything else bye"
       input_option = gets.chomp
       case input_option
@@ -118,9 +122,26 @@ class Frontend
       puts JSON.pretty_generate(response.body)
       jwt = response.body["jwt"]
       Unirest.default_header("Authorization","Bearer #{jwt}")
+      user_email = "Welcome user: #{input_email}"
       when 'logout'
         jwt = ""
         Unirest.clear_default_headers
+      when 'cart'
+        puts
+        puts "Here are all the items in your shopping cart"
+        puts
+        response = Unirest.get("http://localhost:3000/carted_products")
+        carted_products = response.body
+        # carted_products.each do |carted_product_hash|
+        #   puts "* #{carted_product_hash["product"]["name"]}"
+        # end
+        puts JSON.pretty_generate(carted_products)
+        puts "Press enter to continue, or press 'o' to place the order"
+        if gets.chomp == 'o'
+          response = Unirest.post('http://localhost:3000/orders')
+          orders_hash = response.body
+          puts JSON.pretty_generate(orders_hashs)
+        end
       when '7'
         orders_hashs = get_request("/orders")
         response = Unirest.get("http://localhost:3000/orders")
@@ -136,10 +157,30 @@ class Frontend
         parameters[:product_id] = gets.chomp
         print "Enter quantity: "
         parameters[:quantity] = gets.chomp
-        print "Enter order id"
+        print "Enter order id: "
         parameters[:order_id] = gets.chomp
+        print "Enter order id"
+        parameters[:status] = "carted"
         response = Unirest.post("http://localhost:3000/carted_products",parameters:parameters)
         puts JSON.pretty_generate(response.body)
+      when "9"
+        puts "Showing all carted products" 
+        response = Unirest.get("http://localhost:3000/carted_products")
+        carted_products_hashs = response.body
+        carted_products_hashs.each do |carted_product|
+          puts "
+          #{carted_product['status']} 
+          #{carted_product['user_id']} 
+          #{carted_product['product_id']} 
+          #{carted_product['order_id']}"
+        end
+
+
+        # product_hashs = response.body
+        # product_hashs.each do |product_hash|
+        #   puts "- #{product_hash['name']}"
+        # end
+
       else
         system 'clear'
         exit

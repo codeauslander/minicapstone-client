@@ -9,7 +9,7 @@ module ProductsController
     product_hash = get_request("/products/#{input_id}")
     product = Product.new(product_hash)
     products_show_view(product)
-    puts "Press enter to continue or type 'o' to order"
+    puts "Press enter to continue or type 'o' to add to the cart"
     user_choice = gets.chomp
     if user_choice == 'o'
       print "Enter a quantity to order: "
@@ -18,14 +18,13 @@ module ProductsController
         quantity: quantity,
         product_id: input_id
       }
-      json_data = post_request("/orders",parameters)
-      response = Unirest.post("http://localhost:3000/orders",parameters:parameters)
+      # json_data = post_request("/carted_products",parameters)
+      response = Unirest.post("http://localhost:3000/carted_products",parameters:parameters)
       if response.code == 200
         puts JSON.pretty_generate(response.body)    
       elsif response.code == 401
         puts "Nope, try logging in first"  
       end
-      
     end
   end
   def products_create_action
